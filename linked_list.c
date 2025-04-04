@@ -18,7 +18,7 @@ struct list_node *new_node(size_t value) {
 
 void insert_at_head(struct linked_list *list, size_t value) {
   struct list_node *node = new_node(value);  //make a new node point to NULL
-  if (node == NULL) {return 0;}
+  if (node == NULL) {return;}
 
   node->next = list->head;  //point new node to the current beginning
   list->head = node;  //change new head to new node
@@ -40,6 +40,7 @@ void insert_at_tail(struct linked_list *list, size_t value) {
   }
   cur = cur->next;
 
+  return;
 }
 
 size_t remove_from_head(struct linked_list *list) {
@@ -52,7 +53,7 @@ size_t remove_from_head(struct linked_list *list) {
 
   free(temp);  //free the past node
 
-  return 0;
+  return value;
 }
 
 size_t remove_from_tail(struct linked_list *list) {
@@ -76,7 +77,7 @@ size_t remove_from_tail(struct linked_list *list) {
   free(temp->next);
   temp->next = NULL;
   
-  return 0;
+  return value;
 }
 
 void free_list(struct linked_list list) {
