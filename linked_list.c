@@ -61,7 +61,8 @@ size_t remove_from_tail(struct linked_list *list) {
 
   struct list_node *temp = list->head;  //temporary
   size_t value;
-  if (next == NULL) {  //only 1 node in lists
+
+  if (temp->next == NULL) {  //only 1 node in lists
     value = temp->value;
     free(temp);
     list->head = NULL;
