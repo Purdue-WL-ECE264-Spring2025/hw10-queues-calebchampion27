@@ -34,30 +34,30 @@ int is_solved(struct game_state state) {
 
 
 int number_of_moves(struct game_state start) {
-  struct queue q = {0};  // in queue
-  struct linked_list visited = {0};  // visited states
+  struct queue q = {0}; 
+  struct linked_list visited = {0};   
 
-  // Start
+  //start
   enqueue(&q, start);
   insert_at_head(&visited, serialize(start));
 
   while (q.data.head != NULL) {
     struct game_state curr = dequeue(&q);
 
-    // Check if solved using the is_solved function
+    //solved
     if (is_solved(curr)) {
       free_list(&visited);
       free_list(&q.data);
       return curr.num_steps;
     }
 
-    // Explore all possible moves (up, down, left, right)
+    //moves
     int r = curr.empty_row;
     int c = curr.empty_col;
     int dr[] = {-1, 1, 0, 0}; // up, down, left, right
     int dc[] = {0, 0, -1, 1};
 
-    // Move up
+    //up
     if (r > 0) {
       struct game_state next = curr;
       next.board[r][c] = next.board[r-1][c];
@@ -85,7 +85,7 @@ int number_of_moves(struct game_state start) {
       }
     }
 
-    // Move down
+    //down
     if (r < 3) {
       struct game_state next = curr;
       next.board[r][c] = next.board[r+1][c];
@@ -113,7 +113,7 @@ int number_of_moves(struct game_state start) {
       }
     }
 
-    // Move left
+    //left
     if (c > 0) {
       struct game_state next = curr;
       next.board[r][c] = next.board[r][c-1];
@@ -141,7 +141,7 @@ int number_of_moves(struct game_state start) {
       }
     }
 
-    // Move right
+    //right
     if (c < 3) {
       struct game_state next = curr;
       next.board[r][c] = next.board[r][c+1];
@@ -170,7 +170,7 @@ int number_of_moves(struct game_state start) {
     }
   }
 
-  // No solution found
+  //no sol
   free_list(&visited);
   free_list(&q.data);
   return -1;
