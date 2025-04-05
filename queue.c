@@ -46,8 +46,8 @@ void explore_move(struct game_state *cur, struct queue *qu, struct linked_list *
   struct game_state new = *cur;
   move_func(&new);
 
-  if (!is_visited(visited, new)) {
-    insert_at_head(visited, encoded);
+  if (!is_visited(visited, serialize(new))) {
+    insert_at_head(visited, serialize(new));
     enqueue(qu, new);
     printf("HERE\n");
   }
