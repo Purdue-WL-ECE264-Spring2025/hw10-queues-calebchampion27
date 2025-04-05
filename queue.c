@@ -46,9 +46,10 @@ void explore_move(struct game_state *cur, struct queue *qu, struct linked_list *
   struct game_state new = *cur;
   move_func(&new);
 
-  if (!is_visited(visited, encoded)) {
+  if (!is_visited(visited, new)) {
     insert_at_head(visited, encoded);
     enqueue(qu, new);
+    printf("HERE\n");
   }
 }
 
@@ -61,6 +62,7 @@ int number_of_moves(struct game_state start) {
 
   while (qu.data.head != NULL) {
     struct game_state current = dequeue(&qu);
+    printf("%d\n", current.num_steps);
 
     //check if solved 
     if (is_finished(current)) {
