@@ -31,14 +31,15 @@ void insert_at_tail(struct linked_list *list, size_t value) {
 
   if (list->head == NULL) {  //if list is empty
     list->head = node;
-  }
+    return;
+    }
 
   //find end of linked list, then insert "node" at the end
   struct list_node *cur = list->head;  //make new node cur to track
   while (cur->next != NULL) {  //while the current node++ isnt equal to the end
     cur = cur->next;
   }
-  cur = cur->next;
+  cur->next = node;
 
   return;
 }
@@ -88,7 +89,7 @@ void free_list(struct linked_list list) {
     cur = cur->next;
     free(temp);
   }
-
+  return;
 }
 
 // Utility function to help you debugging, do not modify
