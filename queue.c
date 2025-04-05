@@ -34,81 +34,144 @@ int is_solved(struct game_state state) {
 
 
 int number_of_moves(struct game_state start) {
-  struct queue q = {0};  //in queue
-  struct linked_list visited = {0};  //if its visited or not
+  struct queue q = {0};  // in queue
+  struct linked_list visited = {0};  // visited states
 
-  //start
-  enqueue (&q, start);
-  insert_at_head (&visited, serialize (start));
+  // Start
+  enqueue(&q, start);
+  insert_at_head(&visited, serialize(start));
 
   while (q.data.head != NULL) {
-    struct game_state curr = dequeue (&q);
+    struct game_state curr = dequeue(&q);
 
-    //if its solved?
-    int solved = 1;
-    int val = 1;
-    for (int r = 0; r < 4 && solved; r++) {
-      for (int c = 0; c < 4 && solved; c++) {
-        if (r == 3 && c == 3) {
-            if (curr.board[r][c] != 0) solved = 0;
-        }
-        else {
-          if (curr.board[r][c] != val) solved = 0;
-          val++;
-        }
-      }
-    }
-    if (solved) {
-      free_list (&visited);
-      free_list (&q.data);
+    // Check if solved using the is_solved function
+    if (is_solved(curr)) {
+      free_list(&visited);
+      free_list(&q.data);
       return curr.num_steps;
     }
 
-    //moves
+    // Explore all possible moves (up, down, left, right)
     int r = curr.empty_row;
     int c = curr.empty_col;
-    int dr[] = {-1, 1, 0, 0}; //up, down, left, right
+    int dr[] = {-1, 1, 0, 0}; // up, down, left, right
     int dc[] = {0, 0, -1, 1};
 
-    for (int i = 0; i < 4; i++) {
-      int nr = r + dr[i];
-      int nc = c + dc[i];
-
-      if (nr < 0 || nr >= 4 || nc < 0 || nc >= 4)
-      {
-        continue;
-      }
-
+    // Move up
+    if (r > 0) {
       struct game_state next = curr;
-
-      //swapping
-      next.board[r][c] = next.board[nr][nc];
-      next.board[nr][nc] = 0;
-      next.empty_row = nr;
-      next.empty_col = nc;
+      next.board[r][c] = next.board[r-1][c];
+      next.board[r-1][c] = 0;
+      next.empty_row = r - 1;
+      next.empty_col = c;
       next.num_steps = curr.num_steps + 1;
 
-      //if seen
-      size_t encoded = serialize (next);
-      int seen = 0;
-      struct list_node *node = visited.head;
-      while (node != NULL) {
-        if (node->value == encoded) {
-          seen = 1;
+      if (!is_solved(next)) {
+        size_t encoded = serialize(next);
+        int seen = 0;
+        struct list_node *node = visited.head;
+        while (node != NULL) {
+          if (node->value == encoded) {
+            seen = 1;
             break;
+          }
+          node = node->next;
         }
-      node = node->next;
-      }
 
-      if (!seen) {
-        insert_at_head (&visited, encoded);
-        enqueue (&q, next);
+        if (!seen) {
+          insert_at_head(&visited, encoded);
+          enqueue(&q, next);
+        }
+      }
+    }
+
+    // Move down
+    if (r < 3) {
+      struct game_state next = curr;
+      next.board[r][c] = next.board[r+1][c];
+      next.board[r+1][c] = 0;
+      next.empty_row = r + 1;
+      next.empty_col = c;
+      next.num_steps = curr.num_steps + 1;
+
+      if (!is_solved(next)) {
+        size_t encoded = serialize(next);
+        int seen = 0;
+        struct list_node *node = visited.head;
+        while (node != NULL) {
+          if (node->value == encoded) {
+            seen = 1;
+            break;
+          }
+          node = node->next;
+        }
+
+        if (!seen) {
+          insert_at_head(&visited, encoded);
+          enqueue(&q, next);
+        }
+      }
+    }
+
+    // Move left
+    if (c > 0) {
+      struct game_state next = curr;
+      next.board[r][c] = next.board[r][c-1];
+      next.board[r][c-1] = 0;
+      next.empty_row = r;
+      next.empty_col = c - 1;
+      next.num_steps = curr.num_steps + 1;
+
+      if (!is_solved(next)) {
+        size_t encoded = serialize(next);
+        int seen = 0;
+        struct list_node *node = visited.head;
+        while (node != NULL) {
+          if (node->value == encoded) {
+            seen = 1;
+            break;
+          }
+          node = node->next;
+        }
+
+        if (!seen) {
+          insert_at_head(&visited, encoded);
+          enqueue(&q, next);
+        }
+      }
+    }
+
+    // Move right
+    if (c < 3) {
+      struct game_state next = curr;
+      next.board[r][c] = next.board[r][c+1];
+      next.board[r][c+1] = 0;
+      next.empty_row = r;
+      next.empty_col = c + 1;
+      next.num_steps = curr.num_steps + 1;
+
+      if (!is_solved(next)) {
+        size_t encoded = serialize(next);
+        int seen = 0;
+        struct list_node *node = visited.head;
+        while (node != NULL) {
+          if (node->value == encoded) {
+            seen = 1;
+            break;
+          }
+          node = node->next;
+        }
+
+        if (!seen) {
+          insert_at_head(&visited, encoded);
+          enqueue(&q, next);
+        }
       }
     }
   }
 
-  //no sol
-  free_list (&visited);
-  free_list (&q.data);
+  // No solution found
+  free_list(&visited);
+  free_list(&q.data);
   return -1;
 }
