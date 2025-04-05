@@ -64,8 +64,8 @@ int number_of_moves(struct game_state start) {
 
     //check if solved 
     if (is_finished(current)) {
-      free_list(*visited);
-      free_list(*qu.data);
+      free_list(visited);
+      free_list(qu.data);
       return current.num_steps;
     }
 
@@ -91,7 +91,7 @@ int number_of_moves(struct game_state start) {
     }
   }
 
-  free_list(*visited);
-  free_list(*qu.data);
+  free_list(visited);
+  free_list(qu.data);
   return -1;
 }
