@@ -11,167 +11,87 @@ struct game_state dequeue(struct queue *q) {
   
   //return (struct game_state){0};
 }
-/*
-int is_solved(struct game_state state) {
-  int val = 1;
-  for (int r = 0; r < 4; r++) {
-    for (int c = 0; c < 4; c++) {
-      if (r == 3 && c == 3) {
-      if (state.board[r][c] != 0) {
-        return 0;
+
+int is_finished(struct game_state board) {
+  int correct = 1;
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (i == 3 && j == 3) {
+        continue; 
       }
-      }
-      else {
-      if (state.board[r][c] != val) {
-        return 0;
-      }
-      val++;
-      }
-    }
-  } 
-}
-*/
 
-
-int number_of_moves(struct game_state start) {
-  struct queue q = {0}; 
-  struct linked_list visited = {0};   
-
-  //start
-  enqueue(&q, start);
-  insert_at_head(&visited, serialize(start));
-
-  while (q.data.head != NULL) {
-    struct game_state curr = dequeue(&q);
-
-    //solved
-    if (is_solved(curr)) {
-      free_list(&visited);
-      free_list(&q.data);
-      return curr.num_steps;
-    }
-
-    //moves
-    int r = curr.empty_row;
-    int c = curr.empty_col;
-    int dr[] = {-1, 1, 0, 0}; // up, down, left, right
-    int dc[] = {0, 0, -1, 1};
-
-    //up
-    if (r > 0) {
-      struct game_state next = curr;
-      next.board[r][c] = next.board[r-1][c];
-      next.board[r-1][c] = 0;
-      next.empty_row = r - 1;
-      next.empty_col = c;
-      next.num_steps = curr.num_steps + 1;
-
-      if (!is_solved(next)) {
-        size_t encoded = serialize(next);
-        int seen = 0;
-        struct list_node *node = visited.head;
-        while (node != NULL) {
-          if (node->value == encoded) {
-            seen = 1;
-            break;
-          }
-          node = node->next;
-        }
-
-        if (!seen) {
-          insert_at_head(&visited, encoded);
-          enqueue(&q, next);
-        }
-      }
-    }
-
-    //down
-    if (r < 3) {
-      struct game_state next = curr;
-      next.board[r][c] = next.board[r+1][c];
-      next.board[r+1][c] = 0;
-      next.empty_row = r + 1;
-      next.empty_col = c;
-      next.num_steps = curr.num_steps + 1;
-
-      if (!is_solved(next)) {
-        size_t encoded = serialize(next);
-        int seen = 0;
-        struct list_node *node = visited.head;
-        while (node != NULL) {
-          if (node->value == encoded) {
-            seen = 1;
-            break;
-          }
-          node = node->next;
-        }
-
-        if (!seen) {
-          insert_at_head(&visited, encoded);
-          enqueue(&q, next);
-        }
-      }
-    }
-
-    //left
-    if (c > 0) {
-      struct game_state next = curr;
-      next.board[r][c] = next.board[r][c-1];
-      next.board[r][c-1] = 0;
-      next.empty_row = r;
-      next.empty_col = c - 1;
-      next.num_steps = curr.num_steps + 1;
-
-      if (!is_solved(next)) {
-        size_t encoded = serialize(next);
-        int seen = 0;
-        struct list_node *node = visited.head;
-        while (node != NULL) {
-          if (node->value == encoded) {
-            seen = 1;
-            break;
-          }
-          node = node->next;
-        }
-
-        if (!seen) {
-          insert_at_head(&visited, encoded);
-          enqueue(&q, next);
-        }
-      }
-    }
-
-    //right
-    if (c < 3) {
-      struct game_state next = curr;
-      next.board[r][c] = next.board[r][c+1];
-      next.board[r][c+1] = 0;
-      next.empty_row = r;
-      next.empty_col = c + 1;
-      next.num_steps = curr.num_steps + 1;
-
-      if (!is_solved(next)) {
-        size_t encoded = serialize(next);
-        int seen = 0;
-        struct list_node *node = visited.head;
-        while (node != NULL) {
-          if (node->value == encoded) {
-            seen = 1;
-            break;
-          }
-          node = node->next;
-        }
-
-        if (!seen) {
-          insert_at_head(&visited, encoded);
-          enqueue(&q, next);
-        }
+      if (board.tiles[i][j] != correct++) {
+        return 0;   //false
       }
     }
   }
 
-  //no sol
+  return 1;  //true
+}
+
+int is_visited(struct linked_list *visited, size_t encoded) {
+  struct list_node *node = visited->head;
+  while (node != NULL) {
+    if (node->value == encoded) {
+      return 1;  //true
+    }
+    node = node->next;
+  }
+
+  return 0;  //not visisted
+}
+
+//which move to take
+void explore_move(struct game_state *cur, struct queue *qu, struct linked_list *visited, void (*move_func)(struct game_state *), size_t encoded) {
+  struct game_state new = *cur;
+  move_func(&new);
+
+  if (!is_visited(visited, encoded)) {
+    insert_at_head(visited, encoded);
+    enqueue(qu, new);
+  }
+}
+
+int number_of_moves(struct game_state start) {
+  struct queue qu = {.data = {.head = NULL}};
+  struct linked_list visited = {.head = NULL};
+  
+  enqueue(&qu, start);
+  insert_at_head(&visited, serialize(start));
+
+  while (qu.data.head != NULL) {
+    struct game_state current = dequeue(&qu);
+
+    //check if solved 
+    if (is_finished(current)) {
+      free_list(&visited);
+      free_list(&qu.data);
+      return current.num_steps;
+    }
+
+    //move
+    if (current.empty_row != 0) {
+      size_t encoded = serialize(current);
+      explore_move(&current, &qu, &visited, move_down, encoded);
+    }
+
+    if (current.empty_row != 3) {
+      size_t encoded = serialize(current);
+      explore_move(&current, &qu, &visited, move_up, encoded);
+    }
+
+    if (current.empty_col != 0) {
+      size_t encoded = serialize(current);
+      explore_move(&current, &qu, &visited, move_left, encoded);
+    }
+
+    if (current.empty_col != 3) {
+      size_t encoded = serialize(current);
+      explore_move(&current, &qu, &visited, move_right, encoded);
+    }
+  }
+
   free_list(&visited);
-  free_list(&q.data);
+  free_list(&qu.data);
   return -1;
 }
