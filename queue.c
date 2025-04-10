@@ -1,6 +1,17 @@
 #include "queue.h"
 #include "tile_game.h"
 
+int compare(struct game_state state1, struct game_state state2) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (state1.tiles[i][j] != state2.tiles[i][j]) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 void enqueue(struct queue *q, struct game_state state) {
   insert_at_tail(&q->data, serialize(state));
 }
@@ -32,7 +43,9 @@ int is_finished(struct game_state board) {
 int is_visited(struct linked_list *visited, size_t encoded) {
   struct list_node *node = visited->head;
   while (node != NULL) {
-    if (node->value == encoded) {
+    struct game_state game = deserialize(encoded);
+    struct game_state visit = deserialize(node->value);
+    if (compare(game, visit) == 0) {
       return 1;  //true
     }
     node = node->next;
