@@ -39,25 +39,39 @@ int is_finished(struct game_state board) {
 
   return 1;  //true
 }
-
+/*
 int is_visited(struct linked_list *visited, size_t encoded) {
-  struct game_state game = deserialize(encoded);
   struct list_node *node = visited->head;
   while (node != NULL) {
+    struct game_state game = deserialize(encoded);
     struct game_state visit = deserialize(node->value);
     if (compare(game, visit) == 0) {
-      return 1; // true
+      return 1;  //true
     }
     node = node->next;
   }
-  return 0; // not visited
+
+  return 0;  //not visisted
 }
+  */
+
+  int is_visited(struct linked_list *visited, size_t encoded) {
+    struct list_node *node = visited->head;
+    while (node != NULL) {
+      if (encoded == node->value) { 
+        return 1; 
+      }
+      node = node->next;
+    }
+    return 0;
+  }
+  
 
 //which move to take
 void explore_move(struct game_state *cur, struct queue *qu, struct linked_list *visited, void (*move_func)(struct game_state *), size_t encoded) {
   struct game_state new = *cur;
   move_func(&new);
-  new.num_steps = cur->num_steps + 1; /////fixed
+  new.num_steps = cur->num_steps + 1;
 
   if (!is_visited(visited, serialize(new))) {
     insert_at_head(visited, serialize(new));
