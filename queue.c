@@ -66,7 +66,7 @@ void explore_move(struct game_state *cur, struct queue *qu, struct linked_list *
     enqueue(qu, new);
   }
 }
-/*
+
 int number_of_moves(struct game_state start) {
   struct queue qu = {.data = {.head = NULL}};
   struct linked_list visited = {.head = NULL};
@@ -109,36 +109,4 @@ int number_of_moves(struct game_state start) {
   free_list(qu.data);
   return -1;
 
-}
-    */
-int number_of_moves(struct game_state start) {
-if (!is_solvable(start)) { 
-  return -1;
-}
-
-struct queue qu = {.data = {.head = NULL}};
-struct linked_list visited = {.head = NULL};
-    
-enqueue(&qu, start);
-insert_at_head(&visited, serialize(start));
-
-while (qu.data.head != NULL) {
-  struct game_state current = dequeue(&qu);
-
-  if (is_finished(current)) { 
-    free_list(visited);
-    free_list(qu.data);
-    return current.num_steps;
-  }
-
-      
-  if (current.empty_row != 0) explore_move(&current, &qu, &visited, move_down);
-  if (current.empty_row != 3) explore_move(&current, &qu, &visited, move_up);
-  if (current.empty_col != 0) explore_move(&current, &qu, &visited, move_left);
-  if (current.empty_col != 3) explore_move(&current, &qu, &visited, move_right);
-}
-
-free_list(visited);
-free_list(qu.data);
-return -1;
 }
