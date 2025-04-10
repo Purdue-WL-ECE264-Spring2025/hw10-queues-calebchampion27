@@ -39,7 +39,7 @@ int is_finished(struct game_state board) {
 
   return 1;  //true
 }
-/*
+
 int is_visited(struct linked_list *visited, size_t encoded) {
   struct list_node *node = visited->head;
   while (node != NULL) {
@@ -53,19 +53,7 @@ int is_visited(struct linked_list *visited, size_t encoded) {
 
   return 0;  //not visisted
 }
-  */
 
-  int is_visited(struct linked_list *visited, size_t encoded) {
-    struct list_node *node = visited->head;
-    while (node != NULL) {
-      if (encoded == node->value) { 
-        return 1; 
-      }
-      node = node->next;
-    }
-    return 0;
-  }
-  
 
 //which move to take
 void explore_move(struct game_state *cur, struct queue *qu, struct linked_list *visited, void (*move_func)(struct game_state *), size_t encoded) {
@@ -78,7 +66,7 @@ void explore_move(struct game_state *cur, struct queue *qu, struct linked_list *
     enqueue(qu, new);
   }
 }
-
+/*
 int number_of_moves(struct game_state start) {
   struct queue qu = {.data = {.head = NULL}};
   struct linked_list visited = {.head = NULL};
@@ -120,4 +108,37 @@ int number_of_moves(struct game_state start) {
   free_list(visited);
   free_list(qu.data);
   return -1;
+
+}
+    */
+int number_of_moves(struct game_state start) {
+if (!is_solvable(start)) { 
+  return -1;
+}
+
+struct queue qu = {.data = {.head = NULL}};
+struct linked_list visited = {.head = NULL};
+    
+enqueue(&qu, start);
+insert_at_head(&visited, serialize(start));
+
+while (qu.data.head != NULL) {
+  struct game_state current = dequeue(&qu);
+
+  if (is_finished(current)) { 
+    free_list(visited);
+    free_list(qu.data);
+    return current.num_steps;
+  }
+
+      
+  if (current.empty_row != 0) explore_move(&current, &qu, &visited, move_down);
+  if (current.empty_row != 3) explore_move(&current, &qu, &visited, move_up);
+  if (current.empty_col != 0) explore_move(&current, &qu, &visited, move_left);
+  if (current.empty_col != 3) explore_move(&current, &qu, &visited, move_right);
+}
+
+free_list(visited);
+free_list(qu.data);
+return -1;
 }
