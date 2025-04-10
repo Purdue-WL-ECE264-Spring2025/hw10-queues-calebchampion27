@@ -58,6 +58,7 @@ int is_visited(struct linked_list *visited, size_t encoded) {
 void explore_move(struct game_state *cur, struct queue *qu, struct linked_list *visited, void (*move_func)(struct game_state *), size_t encoded) {
   struct game_state new = *cur;
   move_func(&new);
+  new.num_steps = cur->num_steps + 1;
 
   if (!is_visited(visited, serialize(new))) {
     insert_at_head(visited, serialize(new));
